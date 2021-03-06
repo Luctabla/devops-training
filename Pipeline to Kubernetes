@@ -1,0 +1,34 @@
+pipeline {
+    agent any
+
+    environment {
+      DOCKER_IMAGE_NAME = "luctabla/star_wars:firsttry"
+      NAME_DEPLOY = "django-app"
+      NAMESPACE = "default"
+
+    }
+
+    stages {
+        stage('Clone Repository') {
+                steps {
+                    script {
+                            git credentialsId: 'docker-hub', url: 'https://github.com/Luctabla/star_wars'
+                    }
+                }
+        }
+        stage('Build and Push Docker Image') {
+                steps {
+                    script {
+                            docker.withRegistry('https://registry.hub.docker.com ', 'docker-hub') {
+
+                                def customImage = docker.build("luctabla/star_wars_web:firsttry")
+                                customImage.push()
+                                sh 'docker rmi -f luctabla/star_wars_web:firsttry'
+                            }
+
+                    }
+                }
+        }
+
+    }
+}

@@ -13,6 +13,7 @@ spec:
     metadata:
       labels:
         app: star_wars
+        version: 1.0
     spec:
       containers:
       - name: django-app

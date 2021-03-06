@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-app
+  labels:
+    app: django-app
+spec:
+  replicas: 1 
+  selector:
+    matchLabels:
+      app: star_wars
+  template:
+    metadata:
+      labels:
+        app: star_wars
+    spec:
+      containers:  
+      - name: django-app
+        image: registry.digitalocean.com/testing-container-registry/django-dockerized:latest
+        envFrom:
+        - secretRef:
+            name: djando-env
+        ports:
+        - containerPort: 8000
+          name: daphne
+      - name: redis
+        image: redis:5
+        ports:
+        - containerPort: 6379
+          name: redis 
+      imagePullSecrets:
+      - name: registry-testing-container-registry
+

@@ -2,9 +2,10 @@ pipeline {
     agent any
 
     environment {
-      DOCKER_IMAGE_NAME = "luctabla/star_wars:firsttry"
-      NAME_DEPLOY = "django-app"
-      NAMESPACE = "default"
+      DOCKER_IMAGE_NAME="luctabla\\/star_wars:firsttry"
+      NAME_DEPLOY="django-app"
+      NAMESPACE="default"
+      NAME_APP="star_wars"
 
     }
 
@@ -27,6 +28,18 @@ pipeline {
                             }
 
                     }
+                }
+        }
+        stage('Deploy to Kubernetes Cluster') {
+                steps {
+                    withKubeConfig([credentialsId: 'kubernetes']) {
+                     sh  '''
+                     PATCH_TO_DEPLOY={\\"metadata\\":{\\"labels\\":{\\"version\\":\\"${NAME_DEPLOY}\\"}}}
+                     kubectl patch deployment ${NAME_DEPLOY}  -n ${NAMESPACE} -p $PATCH_TO_DEPLOY
+                     kubectl rollout restart deploy/${NAME_DEPLOY}
+                     '''
+                    }
+
                 }
         }
 
